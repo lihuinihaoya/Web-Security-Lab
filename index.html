@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地 RAG 知识库终端</title>
+    <style>
+        body { background-color: #0a0a0a; color: #00ff66; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 20px; }
+        .header { text-align: center; border-bottom: 1px solid #00ff66; padding-bottom: 10px; margin-bottom: 20px; }
+        #chat-container { height: 50vh; overflow-y: auto; border: 1px solid #333; padding: 10px; margin-bottom: 20px; }
+        .message { margin-bottom: 10px; line-height: 1.5; }
+        .user-msg { color: #fff; }
+        .bot-msg { color: #00ff66; }
+        .input-area { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; background: transparent; border: 1px solid #00ff66; color: #00ff66; outline: none; }
+        button { padding: 10px 20px; background: #00ff66; color: #000; border: none; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>[ 本地 RAG 知识库终端 ]</h2>
+        <p>请上传文档后开始提问</p>
+    </div>
+    <div id="chat-container">
+        <div class="message bot-msg">系统已就绪。请输入你的问题...</div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="输入问题，例如：这本书讲了什么？" onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">发送</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('userInput');
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 显示用户消息
+            chatContainer.innerHTML += `<div class="message user-msg">> 你: ${text}</div>`;
+            userInput.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // 模拟请求后端
+            chatContainer.innerHTML += `<div class="message bot-msg" id="loading">> AI 正在翻阅资料并思考...</div>`;
+            
+            // 这里只是前端模拟，实际需替换为 fetch('http://127.0.0.1:8000/ask?question=' + text)
+            setTimeout(() => {
+                document.getElementById('loading').remove();
+                chatContainer.innerHTML += `<div class="message bot-msg">> AI: 这是一个前端测试回复。完整功能需启动 Python 后端（rag_server.py）。</div>`;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
