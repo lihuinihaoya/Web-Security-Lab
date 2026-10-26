@@ -70,9 +70,11 @@ First name: Hack
 Surname: Me
 ID: 1' OR '1'='1
 First name: Pablo
+<img width="1279" height="1516" alt="微信图片_20261026115534_173_173" src="https://github.com/user-attachments/assets/93fde081-6ab9-45a7-8b74-52375bd3d6cb" />
 Surname: Picasso
 ID: 1' OR '1'='1
 First name: Bob
 Surname: Smith
 ... (成功导致数据库全量泄露)
 \`\`\`
+![Uploading 微信图片_20261026115534_173_173.jpg…]()
